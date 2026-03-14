@@ -122,7 +122,9 @@
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const socket = new WebSocket(`${protocol}//${window.location.host}`);
-        let activeNode = "node_1";
+        
+        // We track the last known ID per socket "stream"
+        let lastIdentifiedNode = "node_1"; 
 
         const UI = {
             dot: document.getElementById('status-dot'),
@@ -133,75 +135,76 @@
         socket.onopen = () => {
             UI.dot.className = "w-2.5 h-2.5 bg-green-500 rounded-full";
             UI.text.innerText = "System Live";
-            console.log("WebSocket Connected");
         };
 
         socket.onclose = () => {
             UI.dot.className = "w-2.5 h-2.5 bg-red-500 rounded-full";
             UI.text.innerText = "System Offline";
-            setTimeout(() => window.location.reload(), 5000); // Auto-reconnect
+            setTimeout(() => window.location.reload(), 5000);
         };
 
         socket.onmessage = async (event) => {
             let message = event.data;
 
-            // Handle Blobs (Common on Render/Free Tiers)
+            // --- HANDLE BINARY (IMAGES) ---
             if (message instanceof Blob) {
-                if (message.size < 500) {
-                    message = await message.text(); // Convert small Blobs to Text
+                // Check if it's actually a small text message disguised as a Blob (Render fix)
+                if (message.size < 100) {
+                    const text = await message.text();
+                    processText(text);
                 } else {
-                    // Treat large Blobs as Images
-                    updateFrame(message);
-                    return;
+                    updateFrame(message, lastIdentifiedNode);
                 }
+                return;
             }
 
-            // Process Text Messages
+            // --- HANDLE TEXT (JSON or IDs) ---
             if (typeof message === 'string') {
-                if (message.startsWith("id:")) {
-                    activeNode = message.split(":")[1];
-                } else {
-                    try {
-                        const json = JSON.parse(message);
-                        if (json.type === "sensor") updateSensorUI(json);
-                    } catch (e) { /* Not JSON, ignore */ }
-                }
+                processText(message);
             }
         };
 
-        function updateFrame(blob) {
+        function processText(text) {
+            // Update the "Active Pointer" so the next image knows where to go
+            if (text.startsWith("id:")) {
+                lastIdentifiedNode = text.split(":")[1];
+            } else {
+                try {
+                    const json = JSON.parse(text);
+                    if (json.type === "sensor") updateSensorUI(json);
+                } catch (e) { /* Not JSON */ }
+            }
+        }
+
+        function updateFrame(blob, nodeId) {
             const url = URL.createObjectURL(blob);
-            const target = document.getElementById(`img-${activeNode}`);
+            const target = document.getElementById(`img-${nodeId}`);
             if (target) {
                 target.src = url;
                 target.style.opacity = "1";
             }
-            setTimeout(() => URL.revokeObjectURL(url), 100);
+            // Cleanup memory
+            setTimeout(() => URL.revokeObjectURL(url), 150);
         }
 
         function updateSensorUI(data) {
-            // Map node_1 to s1 and node_2 to s2
-            const id = data.node === "node_1" ? "s1" : "s2";
+            // data.node should be "node_1" or "node_2"
+            const prefix = data.node === "node_1" ? "s1" : "s2";
             
-            // Target the specific spans for the numbers
-            const nVal = document.getElementById(`${id}-n`);
-            const pVal = document.getElementById(`${id}-p`);
-            const kVal = document.getElementById(`${id}-k`);
+            const nVal = document.getElementById(`${prefix}-n`);
+            const pVal = document.getElementById(`${prefix}-p`);
+            const kVal = document.getElementById(`${prefix}-k`);
 
             if (nVal) nVal.innerText = data.n;
             if (pVal) pVal.innerText = data.p;
             if (kVal) kVal.innerText = data.k;
             
-            // AI Insights update
-            if (data.n > 0) {
-                UI.prediction.innerText = `Node ${data.node === "node_1" ? "01" : "02"} update received. Soil balance: Optimizing.`;
-                UI.prediction.classList.replace('text-slate-300', 'text-green-400');
-            }
+            UI.prediction.innerText = `Node ${data.node === "node_1" ? "01" : "02"} update received. Patterns stable.`;
         }
 
         function requestManualScan() {
-            socket.send("scan_now");
-            alert("Scan command sent to field nodes.");
+            socket.send(JSON.stringify({ type: "command", action: "scan_now" }));
+            alert("Sync command broadcasted.");
         }
     </script>
 </body>
