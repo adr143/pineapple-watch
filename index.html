@@ -62,15 +62,15 @@
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                         <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">N</span>
-                        <span id="s1-n" class="text-2xl font-mono text-blue-400">--</span>
+                        <span id="s1-n">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
                     </div>
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                         <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">P</span>
-                        <span id="s1-p" class="text-2xl font-mono text-purple-400">--</span>
+                        <span id="s1-p">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
                     </div>
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                         <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">K</span>
-                        <span id="s1-k" class="text-2xl font-mono text-orange-400">--</span>
+                        <span id="s1-k">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
                     </div>
                 </div>
             </div>
@@ -86,15 +86,15 @@
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                         <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">N</span>
-                        <span id="s2-n" class="text-2xl font-mono text-blue-400">--</span>
+                        <span id="s2-n">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
                     </div>
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                         <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">P</span>
-                        <span id="s2-p" class="text-2xl font-mono text-purple-400">--</span>
+                        <span id="s2-p">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
                     </div>
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                         <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">K</span>
-                        <span id="s2-k" class="text-2xl font-mono text-orange-400">--</span>
+                        <span id="s2-k">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
                     </div>
                 </div>
             </div>
@@ -180,14 +180,21 @@
         }
 
         function updateSensorUI(data) {
+            // Map node_1 to s1 and node_2 to s2
             const id = data.node === "node_1" ? "s1" : "s2";
-            document.getElementById(`${id}-n`).innerText = data.n + " mg/kg";
-            document.getElementById(`${id}-p`).innerText = data.p + " mg/kg";
-            document.getElementById(`${id}-k`).innerText = data.k + " mg/kg";
             
-            // Basic AI logic update
+            // Target the specific spans for the numbers
+            const nVal = document.getElementById(`${id}-n`);
+            const pVal = document.getElementById(`${id}-p`);
+            const kVal = document.getElementById(`${id}-k`);
+
+            if (nVal) nVal.innerText = data.n;
+            if (pVal) pVal.innerText = data.p;
+            if (kVal) kVal.innerText = data.k;
+            
+            // AI Insights update
             if (data.n > 0) {
-                UI.prediction.innerText = "Nitrogen levels detected. Soil balance: Optimizing.";
+                UI.prediction.innerText = `Node ${data.node === "node_1" ? "01" : "02"} update received. Soil balance: Optimizing.`;
                 UI.prediction.classList.replace('text-slate-300', 'text-green-400');
             }
         }
