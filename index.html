@@ -181,9 +181,9 @@
 
         function updateSensorUI(data) {
             const id = data.node === "node_1" ? "s1" : "s2";
-            document.getElementById(`${id}-n`).innerText = data.n;
-            document.getElementById(`${id}-p`).innerText = data.p;
-            document.getElementById(`${id}-k`).innerText = data.k;
+            document.getElementById(`${id}-n`).innerText = data.n + " mg/kg";
+            document.getElementById(`${id}-p`).innerText = data.p + " mg/kg";
+            document.getElementById(`${id}-k`).innerText = data.k + " mg/kg";
             
             // Basic AI logic update
             if (data.n > 0) {
