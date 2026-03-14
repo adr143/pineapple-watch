@@ -120,11 +120,11 @@
     <script>
         lucide.createIcons();
 
+        // --- WEBSOCKET SETUP ---
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const socket = new WebSocket(`${protocol}//${window.location.host}`);
         
-        // We track the last known ID per socket "stream"
-        let lastIdentifiedNode = "node_1"; 
+        let lastIdentifiedNode = "node_1"; // Default pointer
 
         const UI = {
             dot: document.getElementById('status-dot'),
@@ -144,51 +144,60 @@
         };
 
         socket.onmessage = async (event) => {
-            let message = event.data;
-
-            // --- HANDLE BINARY (IMAGES) ---
-            if (message instanceof Blob) {
-                // Check if it's actually a small text message disguised as a Blob (Render fix)
-                if (message.size < 100) {
-                    const text = await message.text();
-                    processText(text);
+            // 1. HANDLE BLOBS (IMAGE DATA)
+            if (event.data instanceof Blob) {
+                // Render.com workaround: small text sometimes gets wrapped in a Blob
+                if (event.data.size < 100) {
+                    const text = await event.data.text();
+                    handleIncomingText(text);
                 } else {
-                    updateFrame(message, lastIdentifiedNode);
+                    // This is the actual camera image. Send it to the current "active" node.
+                    updateFrame(event.data, lastIdentifiedNode);
                 }
-                return;
-            }
-
-            // --- HANDLE TEXT (JSON or IDs) ---
-            if (typeof message === 'string') {
-                processText(message);
+            } 
+            // 2. HANDLE STRINGS (IDs OR JSON)
+            else if (typeof event.data === 'string') {
+                handleIncomingText(event.data);
             }
         };
 
-        function processText(text) {
-            // Update the "Active Pointer" so the next image knows where to go
+        function handleIncomingText(text) {
+            // Identify which node is currently broadcasting
             if (text.startsWith("id:")) {
-                lastIdentifiedNode = text.split(":")[1];
-            } else {
+                const nodeId = text.split(":")[1].trim();
+                lastIdentifiedNode = nodeId;
+                console.log("Switching focus to:", nodeId);
+            } 
+            // Handle Telemetry Data
+            else {
                 try {
                     const json = JSON.parse(text);
-                    if (json.type === "sensor") updateSensorUI(json);
-                } catch (e) { /* Not JSON */ }
+                    if (json.type === "sensor") {
+                        updateSensorUI(json);
+                    }
+                } catch (e) {
+                    // Silently ignore non-JSON strings (like manual pings)
+                }
             }
         }
 
         function updateFrame(blob, nodeId) {
             const url = URL.createObjectURL(blob);
             const target = document.getElementById(`img-${nodeId}`);
+            
             if (target) {
                 target.src = url;
                 target.style.opacity = "1";
+                
+                // Memory management: Revoke the URL after it has loaded to prevent memory leaks
+                target.onload = () => {
+                    URL.revokeObjectURL(url);
+                };
             }
-            // Cleanup memory
-            setTimeout(() => URL.revokeObjectURL(url), 150);
         }
 
         function updateSensorUI(data) {
-            // data.node should be "node_1" or "node_2"
+            // Mapping node names to UI prefixes (node_1 -> s1, node_2 -> s2)
             const prefix = data.node === "node_1" ? "s1" : "s2";
             
             const nVal = document.getElementById(`${prefix}-n`);
@@ -199,12 +208,12 @@
             if (pVal) pVal.innerText = data.p;
             if (kVal) kVal.innerText = data.k;
             
-            UI.prediction.innerText = `Node ${data.node === "node_1" ? "01" : "02"} update received. Patterns stable.`;
+            UI.prediction.innerText = `Data update from ${data.node === "node_1" ? "North" : "South"} received.`;
         }
 
         function requestManualScan() {
             socket.send(JSON.stringify({ type: "command", action: "scan_now" }));
-            alert("Sync command broadcasted.");
+            alert("Manual synchronization command sent to all nodes.");
         }
     </script>
 </body>
