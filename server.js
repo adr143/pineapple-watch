@@ -12,7 +12,6 @@ app.use(express.static(__dirname));
 
 wss.on('connection', (ws) => {
     ws.on('message', (data) => {
-        // Relay any message (Image or JSON) to all other connected clients
         wss.clients.forEach((client) => {
             if (client !== ws && client.readyState === WebSocket.OPEN) {
                 client.send(data);
