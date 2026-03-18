@@ -59,13 +59,13 @@
         // --- SUPABASE CONFIG ---
         const SB_URL = "https://dbratxrqdcjvycornwfy.supabase.co";
         const SB_KEY = "sb_publishable_Oubpa20Qub95zqd7vnySEA_eJuczIsA"; 
-        const supabase = Object.assign(supabase, {}).createClient ? supabase.createClient(SB_URL, SB_KEY) : window.supabase.createClient(SB_URL, SB_KEY);
+        const supabaseClient = Object.assign(supabase, {}).createClient ? supabase.createClient(SB_URL, SB_KEY) : window.supabase.createClient(SB_URL, SB_KEY);
 
         const historyBody = document.getElementById('history-body');
         let csvData = [["Node", "Timestamp", "Nitrogen", "Phosphorus", "Potassium"]];
 
         async function fetchHistory() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('hourly_logs')
                 .select('*')
                 .order('created_at', { ascending: false })
