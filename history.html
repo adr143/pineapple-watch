@@ -1,135 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PINYASEEK | Historical Data</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PINYASEEK | Historical Data</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
 
-    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <i data-lucide="history" class="text-green-500"></i>
-                <span class="font-bold text-xl tracking-tight">DATA <span class="text-green-500">ARCHIVE</span></span>
-            </div>
-            <a href="index.html" class="text-xs flex items-center gap-1 hover:text-green-500 transition-colors">
-                <i data-lucide="arrow-left" class="w-4"></i> BACK TO DASHBOARD
-            </a>
+<header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <i data-lucide="history" class="text-green-500"></i>
+            <span class="font-bold text-xl tracking-tight">DATA <span class="text-green-500">ARCHIVE</span></span>
         </div>
-    </header>
+        <a href="index.html" class="text-xs flex items-center gap-1 hover:text-green-500 transition-colors">
+            <i data-lucide="arrow-left" class="w-4"></i> BACK TO DASHBOARD
+        </a>
+    </div>
+</header>
 
-    <main class="max-w-7xl mx-auto p-4 lg:p-8">
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
-            <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-xl font-bold">Soil & Visual History</h2>
-                    <p class="text-slate-500 text-sm">Showing hourly logs from both Node 1 and Node 2</p>
-                </div>
-                <button onclick="exportToCSV()" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-2">
-                    <i data-lucide="download" class="w-4"></i> EXPORT CSV
-                </button>
+<main class="max-w-7xl mx-auto p-4 lg:p-8">
+    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+        <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-bold">Soil & Visual History</h2>
+                <p class="text-slate-500 text-sm">Showing hourly logs from both Node 1 and Node 2</p>
             </div>
-
-            <div class="overflow-x-auto">
-                <table id="history-table" class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-800/50 text-slate-400 text-[10px] uppercase tracking-widest">
-                            <th class="p-4 border-b border-slate-800">Node</th>
-                            <th class="p-4 border-b border-slate-800">Date & Time</th>
-                            <th class="p-4 border-b border-slate-800">Visual Feed</th>
-                            <th class="p-4 border-b border-slate-800 text-center">N-P-K (mg/kg)</th>
-                            <th class="p-4 border-b border-slate-800">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-body" class="text-sm font-mono">
-                        <tr><td colspan="5" class="p-20 text-center text-slate-600 animate-pulse">Fetching from Supabase...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <button onclick="exportToCSV()" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-2">
+                <i data-lucide="download" class="w-4"></i> EXPORT CSV
+            </button>
         </div>
-    </main>
 
-    <script>
-        lucide.createIcons();
-
-        // --- SUPABASE CONFIG ---
-        const SB_URL = "https://dbratxrqdcjvycornwfy.supabase.co";
-        const SB_KEY = "sb_publishable_Oubpa20Qub95zqd7vnySEA_eJuczIsA"; 
-        const supabaseClient = Object.assign(supabase, {}).createClient ? supabase.createClient(SB_URL, SB_KEY) : window.supabase.createClient(SB_URL, SB_KEY);
-
-        const historyBody = document.getElementById('history-body');
-        let csvData = [["Node", "Timestamp", "Nitrogen", "Phosphorus", "Potassium"]];
-
-        async function fetchHistory() {
-            const { data, error } = await supabaseClient
-                .from('hourly_logs')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(50);
-
-            if (error) {
-                console.error("Error fetching data:", error);
-                historyBody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500">Error loading data. Check console.</td></tr>`;
-                return;
-            }
-
-            renderTable(data);
-        }
-
-        function renderTable(logs) {
-            historyBody.innerHTML = "";
-            csvData = [["Node", "Timestamp", "Nitrogen", "Phosphorus", "Potassium"]];
-
-            logs.forEach((log) => {
-                const timeStr = new Date(log.created_at).toLocaleString();
-                csvData.push([log.node_id, timeStr, log.n, log.p, log.k]);
-
-                const row = `
-                    <tr class="border-b border-slate-800/50 hover:bg-white/5 transition-all">
-                        <td class="p-4"><span class="px-2 py-1 rounded bg-slate-800 text-[10px] font-bold text-green-400">${log.node_id.toUpperCase()}</span></td>
-                        <td class="p-4 text-slate-400 text-xs">${timeStr}</td>
-                        <td class="p-4">
-                            <a href="${log.image_url}" target="_blank">
-                                <img src="${log.image_url}" class="w-16 h-10 object-cover rounded border border-slate-700 hover:scale-150 transition-transform cursor-zoom-in">
-                            </a>
-                        </td>
-                        <td class="p-4">
-                            <div class="flex justify-center gap-3">
-                                <span class="text-blue-400 font-bold">${log.n}</span>
-                                <span class="text-purple-400 font-bold">${log.p}</span>
-                                <span class="text-orange-400 font-bold">${log.k}</span>
-                            </div>
-                        </td>
-                        <td class="p-4">
-                            <span class="flex items-center gap-1.5 text-green-500 text-[10px] font-bold">
-                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> ARCHIVED
-                            </span>
-                        </td>
+        <div class="overflow-x-auto">
+            <table id="history-table" class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-800/50 text-slate-400 text-[10px] uppercase tracking-widest">
+                        <th class="p-4 border-b border-slate-800">Node</th>
+                        <th class="p-4 border-b border-slate-800">Date & Time</th>
+                        <th class="p-4 border-b border-slate-800">Visual Feed</th>
+                        <th class="p-4 border-b border-slate-800 text-center">N-P-K (mg/kg)</th>
+                        <th class="p-4 border-b border-slate-800 text-center">Predicted Yield (kg)</th>
+                        <th class="p-4 border-b border-slate-800">Status</th>
                     </tr>
-                `;
-                historyBody.innerHTML += row;
-            });
-        }
+                </thead>
+                <tbody id="history-body" class="text-sm font-mono">
+                    <tr><td colspan="6" class="p-20 text-center text-slate-600 animate-pulse">Fetching from Supabase...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
 
-        function exportToCSV() {
-            let csvContent = "data:text/csv;charset=utf-8," + csvData.map(e => e.join(",")).join("\n");
-            const link = document.createElement("a");
-            link.setAttribute("href", encodeURI(csvContent));
-            link.setAttribute("download", `pinyaseek_archive_${new Date().toLocaleDateString()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+<script>
+lucide.createIcons();
 
-        // Initial Load
-        fetchHistory();
-        
-        // Refresh every 5 minutes
-        setInterval(fetchHistory, 300000);
-    </script>
+// --- SUPABASE CONFIG ---
+const SB_URL = "https://dbratxrqdcjvycornwfy.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRicmF0eHJxZGNqdnljb3Jud2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MjA3ODgsImV4cCI6MjA4OTA5Njc4OH0._FsMDfJTLGFG_BEmfXT1xRycSxzWKgejPu5bfze3bcs"; 
+const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+const historyBody = document.getElementById('history-body');
+let csvData = [["Node", "Timestamp", "Nitrogen", "Phosphorus", "Potassium", "Predicted Yield (kg)"]];
+
+async function fetchHistory() {
+    const { data, error } = await supabaseClient
+        .from('hourly_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+    if (error) {
+        console.error("Supabase error:", error);
+        historyBody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500">${error.message}</td></tr>`;
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        historyBody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-500">No records found in hourly_logs.</td></tr>`;
+        return;
+    }
+
+    renderTable(data);
+}
+
+function renderTable(logs) {
+    historyBody.innerHTML = "";
+    csvData = [["Node", "Timestamp", "Nitrogen", "Phosphorus", "Potassium", "Predicted Yield (kg)"]];
+
+    logs.forEach((log) => {
+        const timeStr = new Date(log.created_at).toLocaleString();
+        csvData.push([log.node_id, timeStr, log.n, log.p, log.k, log.prediction || ""]);
+
+        const row = `
+            <tr class="border-b border-slate-800/50 hover:bg-white/5 transition-all">
+                <td class="p-4"><span class="px-2 py-1 rounded bg-slate-800 text-[10px] font-bold text-green-400">${log.node_id.toUpperCase()}</span></td>
+                <td class="p-4 text-slate-400 text-xs">${timeStr}</td>
+                <td class="p-4">
+                    <a href="${log.image_url}" target="_blank">
+                        <img src="${log.image_url}" class="w-16 h-10 object-cover rounded border border-slate-700 hover:scale-150 transition-transform cursor-zoom-in">
+                    </a>
+                </td>
+                <td class="p-4">
+                    <div class="flex justify-center gap-3">
+                        <span class="text-blue-400 font-bold">${log.n}</span>
+                        <span class="text-purple-400 font-bold">${log.p}</span>
+                        <span class="text-orange-400 font-bold">${log.k}</span>
+                    </div>
+                </td>
+                <td class="p-4 text-center font-bold text-green-400">${log.prediction !== null ? log.prediction : '-'}</td>
+                <td class="p-4">
+                    <span class="flex items-center gap-1.5 text-green-500 text-[10px] font-bold">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> ARCHIVED
+                    </span>
+                </td>
+            </tr>
+        `;
+        historyBody.innerHTML += row;
+    });
+}
+
+function exportToCSV() {
+    let csvContent = "data:text/csv;charset=utf-8," + csvData.map(e => e.join(",")).join("\n");
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", `pinyaseek_archive_${new Date().toLocaleDateString()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Initial Load
+fetchHistory();
+setInterval(fetchHistory, 300000); // refresh every 5 minutes
+</script>
 </body>
 </html>

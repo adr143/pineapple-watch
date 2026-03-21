@@ -1,220 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PINYASEEK | Smart Field Monitor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PINYASEEK | Smart Field Monitor</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
 
-    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+<header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <i data-lucide="sprout" class="text-green-500"></i>
+            <span class="font-bold text-xl tracking-tight">PINYASEEK <span class="text-green-500 text-sm">PRO</span></span>
+        </div>
+        <div id="status-badge" class="flex items-center gap-4 text-[10px] font-bold tracking-widest uppercase">
+            <span class="flex items-center gap-1.5">
+                <span id="status-dot" class="w-2.5 h-2.5 bg-yellow-500 rounded-full animate-pulse"></span>
+                <span id="status-text">Connecting</span>
+            </span>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto p-4 lg:p-8 space-y-8">
+
+    <!-- Live Field Feeds -->
+    <section>
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between mb-6">
             <div class="flex items-center gap-2">
-                <i data-lucide="sprout" class="text-green-500"></i>
-                <span class="font-bold text-xl tracking-tight">PINYASEEK <span class="text-green-500 text-sm">PRO</span></span>
+                <i data-lucide="video" class="text-slate-400 w-5"></i>
+                <h2 class="text-lg font-semibold text-slate-300">Live Field Feeds</h2>
             </div>
-            <div id="status-badge" class="flex items-center gap-4 text-[10px] font-bold tracking-widest uppercase">
-                <span class="flex items-center gap-1.5">
-                    <span id="status-dot" class="w-2.5 h-2.5 bg-yellow-500 rounded-full animate-pulse"></span> 
-                    <span id="status-text">Connecting</span>
-                </span>
+            <a href="history.html" class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-all text-sm font-medium">
+                <i data-lucide="table-2" class="w-4 h-4 text-green-500"></i>
+                View Historical Data
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 ring-1 ring-white/5">
+                <div class="absolute top-3 left-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10">Node 01 - North</div>
+                <img id="img-node_1" src="https://via.placeholder.com/640x360?text=Waiting+for+Node+1..." class="w-full aspect-video object-cover bg-slate-800 transition-opacity duration-300" alt="Node 1">
+            </div>
+            <div class="group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 ring-1 ring-white/5">
+                <div class="absolute top-3 left-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10">Node 02 - South</div>
+                <img id="img-node_2" src="https://via.placeholder.com/640x360?text=Waiting+for+Node+2..." class="w-full aspect-video object-cover bg-slate-800 transition-opacity duration-300" alt="Node 2">
             </div>
         </div>
-    </header>
+    </section>
 
-    <main class="max-w-7xl mx-auto p-4 lg:p-8 space-y-8">
-        
-        <section>
-            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between mb-6">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="video" class="text-slate-400 w-5"></i>
-                    <h2 class="text-lg font-semibold text-slate-300">Live Field Feeds</h2>
-                </div>
-                <a href="history.html" class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-all text-sm font-medium">
-                    <i data-lucide="table-2" class="w-4 h-4 text-green-500"></i>
-                    View Historical Data
-                </a>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 ring-1 ring-white/5">
-                    <div class="absolute top-3 left-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10">Node 01 - North</div>
-                    <img id="img-node_1" src="https://via.placeholder.com/640x360?text=Waiting+for+Node+1..." class="w-full aspect-video object-cover bg-slate-800 transition-opacity duration-300" alt="Node 1">
-                </div>
-                <div class="group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 ring-1 ring-white/5">
-                    <div class="absolute top-3 left-3 z-10 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10">Node 02 - South</div>
-                    <img id="img-node_2" src="https://via.placeholder.com/640x360?text=Waiting+for+Node+2..." class="w-full aspect-video object-cover bg-slate-800 transition-opacity duration-300" alt="Node 2">
-                </div>
-            </div>
-        </section>
-
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition-colors">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h3 class="font-bold text-blue-400 uppercase text-[10px] tracking-widest mb-1">Telemetry Node 01</h3>
-                        <p class="text-xl font-semibold">NPK Analysis</p>
-                    </div>
-                    <div class="p-2 bg-blue-500/10 rounded-lg"><i data-lucide="database" class="text-blue-500 w-5 h-5"></i></div>
-                </div>
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-                        <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">N</span>
-                        <span id="s1-n">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
-                    </div>
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-                        <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">P</span>
-                        <span id="s1-p">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
-                    </div>
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-                        <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">K</span>
-                        <span id="s1-k">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-green-500/30 transition-colors">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h3 class="font-bold text-green-400 uppercase text-[10px] tracking-widest mb-1">Telemetry Node 02</h3>
-                        <p class="text-xl font-semibold">NPK Analysis</p>
-                    </div>
-                    <div class="p-2 bg-green-500/10 rounded-lg"><i data-lucide="database" class="text-green-500 w-5 h-5"></i></div>
-                </div>
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-                        <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">N</span>
-                        <span id="s2-n">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
-                    </div>
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-                        <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">P</span>
-                        <span id="s2-p">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
-                    </div>
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-                        <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">K</span>
-                        <span id="s2-k">--</span> <span class="text-[10px] opacity-50 ml-1">mg/kg</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <div class="bg-gradient-to-r from-blue-600/10 via-green-600/10 to-transparent p-6 rounded-2xl border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="flex items-center gap-4">
-                <div class="p-3 bg-green-500/10 rounded-xl border border-green-500/20">
-                    <i data-lucide="brain-circuit" class="text-green-400"></i>
-                </div>
+    <!-- Telemetry Nodes -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition-colors">
+            <div class="flex justify-between items-start mb-6">
                 <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">AI Crop Insights</h4>
-                    <p id="prediction" class="text-lg font-medium text-slate-300">Analyzing soil patterns...</p>
+                    <h3 class="font-bold text-blue-400 uppercase text-[10px] tracking-widest mb-1">Telemetry Node 01</h3>
+                    <p class="text-xl font-semibold">NPK Analysis</p>
+                </div>
+                <div class="p-2 bg-blue-500/10 rounded-lg"><i data-lucide="database" class="text-blue-500 w-5 h-5"></i></div>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">N</span>
+                    <span id="s1-n">--</span><span class="text-[10px] opacity-50 ml-1">mg/kg</span>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">P</span>
+                    <span id="s1-p">--</span><span class="text-[10px] opacity-50 ml-1">mg/kg</span>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">K</span>
+                    <span id="s1-k">--</span><span class="text-[10px] opacity-50 ml-1">mg/kg</span>
                 </div>
             </div>
-            <button onclick="requestManualScan()" class="group flex items-center gap-2 px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-green-400 transition-all active:scale-95">
-                <i data-lucide="refresh-cw" class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500"></i>
-                Manual Sync
-            </button>
         </div>
-    </main>
 
-    <script>
-        lucide.createIcons();
+        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-green-500/30 transition-colors">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 class="font-bold text-green-400 uppercase text-[10px] tracking-widest mb-1">Telemetry Node 02</h3>
+                    <p class="text-xl font-semibold">NPK Analysis</p>
+                </div>
+                <div class="p-2 bg-green-500/10 rounded-lg"><i data-lucide="database" class="text-green-500 w-5 h-5"></i></div>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">N</span>
+                    <span id="s2-n">--</span><span class="text-[10px] opacity-50 ml-1">mg/kg</span>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">P</span>
+                    <span id="s2-p">--</span><span class="text-[10px] opacity-50 ml-1">mg/kg</span>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                    <span class="block text-[10px] text-slate-500 font-bold uppercase mb-1">K</span>
+                    <span id="s2-k">--</span><span class="text-[10px] opacity-50 ml-1">mg/kg</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        // --- WEBSOCKET SETUP ---
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const socket = new WebSocket(`${protocol}//${window.location.host}`);
-        
-        let lastIdentifiedNode = "node_1"; // Default pointer
+    <!-- AI Crop Insights -->
+    <div class="bg-gradient-to-r from-blue-600/10 via-green-600/10 to-transparent p-6 rounded-2xl border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <div class="p-3 bg-green-500/10 rounded-xl border border-green-500/20">
+                <i data-lucide="brain-circuit" class="text-green-400"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">AI Crop Insights</h4>
+                <p id="prediction" class="text-lg font-medium text-slate-300">Analyzing soil patterns...</p>
+            </div>
+        </div>
+        <button onclick="requestManualScan()" class="group flex items-center gap-2 px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-green-400 transition-all active:scale-95">
+            <i data-lucide="refresh-cw" class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500"></i>
+            Manual Sync
+        </button>
+    </div>
 
-        const UI = {
-            dot: document.getElementById('status-dot'),
-            text: document.getElementById('status-text'),
-            prediction: document.getElementById('prediction')
-        };
+</main>
 
-        socket.onopen = () => {
-            UI.dot.className = "w-2.5 h-2.5 bg-green-500 rounded-full";
-            UI.text.innerText = "System Live";
-        };
+<script>
+lucide.createIcons();
 
-        socket.onclose = () => {
-            UI.dot.className = "w-2.5 h-2.5 bg-red-500 rounded-full";
-            UI.text.innerText = "System Offline";
-            setTimeout(() => window.location.reload(), 5000);
-        };
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const socket = new WebSocket(`${protocol}//${window.location.host}`);
+let lastNode = "node_1";
 
-        socket.onmessage = async (event) => {
-            // 1. HANDLE BLOBS (IMAGE DATA)
-            if (event.data instanceof Blob) {
-                // Render.com workaround: small text sometimes gets wrapped in a Blob
-                if (event.data.size < 100) {
-                    const text = await event.data.text();
-                    handleIncomingText(text);
-                } else {
-                    // This is the actual camera image. Send it to the current "active" node.
-                    updateFrame(event.data, lastIdentifiedNode);
-                }
-            } 
-            // 2. HANDLE STRINGS (IDs OR JSON)
-            else if (typeof event.data === 'string') {
-                handleIncomingText(event.data);
-            }
-        };
+const UI = {
+    dot: document.getElementById('status-dot'),
+    text: document.getElementById('status-text'),
+    prediction: document.getElementById('prediction')
+};
 
-        function handleIncomingText(text) {
-            // Identify which node is currently broadcasting
-            if (text.startsWith("id:")) {
-                const nodeId = text.split(":")[1].trim();
-                lastIdentifiedNode = nodeId;
-                console.log("Switching focus to:", nodeId);
-            } 
-            // Handle Telemetry Data
-            else {
-                try {
-                    const json = JSON.parse(text);
-                    if (json.type === "sensor") {
-                        updateSensorUI(json);
-                    }
-                } catch (e) {
-                    // Silently ignore non-JSON strings (like manual pings)
-                }
-            }
+socket.onopen = () => {
+    UI.dot.className = "w-2.5 h-2.5 bg-green-500 rounded-full";
+    UI.text.innerText = "System Live";
+};
+
+socket.onclose = () => {
+    UI.dot.className = "w-2.5 h-2.5 bg-red-500 rounded-full";
+    UI.text.innerText = "System Offline";
+    setTimeout(() => window.location.reload(), 5000);
+};
+
+socket.onmessage = async (event) => {
+    if (event.data instanceof Blob) {
+        if (event.data.size < 100) {
+            const text = await event.data.text();
+            handleText(text);
+        } else {
+            updateFrame(event.data, lastNode);
         }
+    } else if (typeof event.data === 'string') {
+        handleText(event.data);
+    } else {
+        try {
+            const json = JSON.parse(event.data);
+            if (json.node) updateTelemetryUI(json);
+        } catch(e) {}
+    }
+};
 
-        function updateFrame(blob, nodeId) {
-            const url = URL.createObjectURL(blob);
-            const target = document.getElementById(`img-${nodeId}`);
-            
-            if (target) {
-                target.src = url;
-                target.style.opacity = "1";
-                
-                // Memory management: Revoke the URL after it has loaded to prevent memory leaks
-                target.onload = () => {
-                    URL.revokeObjectURL(url);
-                };
-            }
-        }
+function handleText(text) {
+    if (text.startsWith("id:")) lastNode = text.split(":")[1].trim();
+}
 
-        function updateSensorUI(data) {
-            // Mapping node names to UI prefixes (node_1 -> s1, node_2 -> s2)
-            const prefix = data.node === "node_1" ? "s1" : "s2";
-            
-            const nVal = document.getElementById(`${prefix}-n`);
-            const pVal = document.getElementById(`${prefix}-p`);
-            const kVal = document.getElementById(`${prefix}-k`);
+function updateFrame(blob, nodeId) {
+    const img = document.getElementById(`img-${nodeId}`);
+    const url = URL.createObjectURL(blob);
+    img.src = url;
+    img.onload = () => URL.revokeObjectURL(url);
+}
 
-            if (nVal) nVal.innerText = data.n;
-            if (pVal) pVal.innerText = data.p;
-            if (kVal) kVal.innerText = data.k;
-            
-            UI.prediction.innerText = `Data update from ${data.node === "node_1" ? "North" : "South"} received.`;
-        }
+function updateTelemetryUI(data) {
+    const prefix = data.node === "node_1" ? "s1" : "s2";
+    document.getElementById(`${prefix}-n`).innerText = data.n;
+    document.getElementById(`${prefix}-p`).innerText = data.p;
+    document.getElementById(`${prefix}-k`).innerText = data.k;
 
-        function requestManualScan() {
-            socket.send(JSON.stringify({ type: "command", action: "scan_now" }));
-            alert("Manual synchronization command sent to all nodes.");
-        }
-    </script>
+    if (data.prediction !== undefined && data.prediction !== null) {
+        UI.prediction.innerText = `Predicted Yield: ${data.prediction} kg`;
+    } else {
+        UI.prediction.innerText = `Data update from ${data.node === "node_1" ? "North" : "South"} received.`;
+    }
+}
+
+function requestManualScan() {
+    socket.send(JSON.stringify({ type: "command", action: "scan_now" }));
+    alert("Manual synchronization command sent to all nodes.");
+}
+</script>
 </body>
 </html>
