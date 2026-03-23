@@ -158,7 +158,7 @@ socket.onmessage = async (event) => {
     } else {
         try {
             const json = JSON.parse(event.data);
-            if (json.node) updateTelemetryUI(json);
+            if (json.node || json.node_id) updateTelemetryUI(json);
         } catch(e) {}
     }
 };
