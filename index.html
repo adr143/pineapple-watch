@@ -146,6 +146,8 @@ socket.onclose = () => {
 };
 
 socket.onmessage = async (event) => {
+
+    // --- IMAGE (binary) ---
     if (event.data instanceof Blob) {
         if (event.data.size < 100) {
             const text = await event.data.text();
@@ -153,13 +155,25 @@ socket.onmessage = async (event) => {
         } else {
             updateFrame(event.data, lastNode);
         }
-    } else if (typeof event.data === 'string') {
-        handleText(event.data);
-    } else {
+        return;
+    }
+
+    // --- TEXT / JSON ---
+    if (typeof event.data === 'string') {
+
+        // 🔥 Try JSON FIRST
         try {
             const json = JSON.parse(event.data);
-            if (json.node || json.node_id) updateTelemetryUI(json);
-        } catch(e) {}
+
+            if (json.type === "sensor") {
+                updateTelemetryUI(json);
+            }
+
+            return; // stop here if JSON
+        } catch (e) {
+            // not JSON → fallback
+            handleText(event.data);
+        }
     }
 };
 
