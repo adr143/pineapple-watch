@@ -78,40 +78,56 @@ wss.on('connection', (ws) => {
         // --- Sensor + ML Prediction ---
         if (isJson && payload.type === "sensor") {
             try {
-                // Normalize node_id
-                payload.node_id = formatNodeId(payload.node_id);
+                // ✅ Fix node field
+                payload.node = formatNodeId(payload.node);
 
-                // Convert to numeric for ML
-                const numericNodeId = getNumericNodeId(payload.node_id);
+                // ✅ Convert node to numeric
+                const numericNodeId = getNumericNodeId(payload.node);
 
+                // ✅ Generate time-based features (SERVER SIDE)
+                const now = new Date();
+
+                const startDate = new Date("2025-01-01"); // adjust if needed
+                const days_since_start = Math.floor(
+                    (now - startDate) / (1000 * 60 * 60 * 24)
+                );
+
+                const week = Math.floor(days_since_start / 7);
+
+                const sin_time = Math.sin((2 * Math.PI * days_since_start) / 30);
+                const cos_time = Math.cos((2 * Math.PI * days_since_start) / 30);
+
+                // ✅ Build feature vector
                 const features = [
                     Number(payload.n),
                     Number(payload.p),
                     Number(payload.k),
-                    Number(payload.days_since_start),
-                    Number(payload.week),
-                    Number(payload.sin_time),
-                    Number(payload.cos_time),
+                    days_since_start,
+                    week,
+                    sin_time,
+                    cos_time,
                     numericNodeId
                 ];
 
-                // Validate input
+                // ✅ Validate
                 if (features.some(v => isNaN(v))) {
+                    console.log("⚠️ Bad features:", features);
                     throw new Error("Invalid feature values");
                 }
 
+                // ✅ Predict
                 const prediction = rf.predict([features])[0];
                 payload.prediction = Math.round(prediction * 100) / 100;
 
-                // Save last prediction (for archive)
                 ws.lastPrediction = payload.prediction;
+
+                console.log("🌱 Prediction:", payload.prediction);
 
             } catch (err) {
                 console.error("❌ ML Prediction Error:", err.message);
                 payload.prediction = null;
             }
         }
-
         // --- Handle image buffer ---
         if (Buffer.isBuffer(data) && ws.pendingArchive && !ws.isArchiving) {
             ws.isArchiving = true;
