@@ -106,6 +106,29 @@ async function fetchHistory() {
     renderTable(data);
 }
 
+async function fetchFullHistory() {
+    csvData = [["Node","Timestamp","N","P","K","Prediction"]];
+    const { data, error } = await supabaseClient
+        .from('hourly_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+    const logs = data
+
+    logs.forEach(log => {
+        const timeStr = new Date(log.created_at).toLocaleString();
+
+        csvData.push([
+            log.node_id,
+            timeStr,
+            log.n,
+            log.p,
+            log.k,
+            log.prediction || ""
+        ]);
+    })
+}
+
 // --- RENDER ---
 function renderTable(logs) {
     historyBody.innerHTML = "";
@@ -177,6 +200,7 @@ function renderTable(logs) {
 
 // --- CSV EXPORT ---
 function exportToCSV() {
+    fetchFullHistory()
     let csvContent = "data:text/csv;charset=utf-8," +
         csvData.map(e => e.join(",")).join("\n");
 
