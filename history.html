@@ -108,25 +108,45 @@ async function fetchHistory() {
 
 async function fetchFullHistory() {
     csvData = [["Node","Timestamp","N","P","K","Prediction"]];
-    const { data, error } = await supabaseClient
-        .from('hourly_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
 
-    const logs = data
+    const pageSize = 1000;
+    let from = 0;
+    let to = pageSize - 1;
+    let done = false;
 
-    logs.forEach(log => {
-        const timeStr = new Date(log.created_at).toLocaleString();
+    while (!done) {
+        const { data, error } = await supabaseClient
+            .from('hourly_logs')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .range(from, to);
 
-        csvData.push([
-            log.node_id,
-            timeStr,
-            log.n,
-            log.p,
-            log.k,
-            log.prediction || ""
-        ]);
-    })
+        if (error) {
+            console.error(error);
+            break;
+        }
+
+        if (data.length === 0) {
+            done = true;
+            break;
+        }
+
+        data.forEach(log => {
+            const timeStr = new Date(log.created_at).toLocaleString();
+
+            csvData.push([
+                log.node_id,
+                timeStr,
+                log.n,
+                log.p,
+                log.k,
+                log.prediction || ""
+            ]);
+        });
+
+        from += pageSize;
+        to += pageSize;
+    }
 }
 
 // --- RENDER ---
@@ -199,8 +219,8 @@ function renderTable(logs) {
 }
 
 // --- CSV EXPORT ---
-function exportToCSV() {
-    fetchFullHistory()
+async function exportToCSV() {
+    await fetchFullHistory()
     let csvContent = "data:text/csv;charset=utf-8," +
         csvData.map(e => e.join(",")).join("\n");
 
